@@ -73,6 +73,12 @@ public class RelationImplementation implements Relation {
     return false;
   }
 
+  /**
+   * Returns the index of {@code attr} in {@code attrs}.
+   *
+   * @param attr attribute to check
+   * @returns the index of {@code attr} in {@code attrs}
+   */
   @Override
   public int getAttrIndex(String attr) {
     for (int i = 0; i < attrs.size(); i++) {
