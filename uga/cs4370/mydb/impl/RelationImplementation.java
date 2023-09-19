@@ -57,10 +57,24 @@ public class RelationImplementation implements Relation {
     return new ArrayList<>(attrs);
   }
 
+  /**
+   * Returns {@code true} if {@code attr} is in
+   * {@code attrs}.
+   *
+   * @param attr attribute to check
+   * @returns {@code true} if {@code attr} is in {@code attrs}
+   */
+  @Override
   public boolean hasAttr(String attr) {
-    for (int i = 0; i < attrs.size(); i++) {
-      if (attrs.get(i).compareTo(attr) == 0) return true;
+    for (String attribute : attrs) {
+      if (attribute.equalsIgnoreCase(attr))
+        return true;
     }
     return false;
+  }
+
+  @Override
+  public int getAttrIndex(String attr) {
+
   }
 }
