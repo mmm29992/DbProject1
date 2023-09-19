@@ -6,7 +6,7 @@ import java.util.List;
  * Represents a relation instance.
  */
 public interface Relation {
-    
+
     /**
      * Returns the name of the relation.
      */
@@ -19,7 +19,7 @@ public interface Relation {
 
     /**
      * Get the rows of the relation.
-     * Return a deep copy of the rows to avoid 
+     * Return a deep copy of the rows to avoid
      * modifications to the rows by the callers of this method.
      */
     public List<List<Cell>> getRows();
@@ -38,33 +38,35 @@ public interface Relation {
      * Returns true only if attr exist in the relation.
      */
     public boolean hasAttr(String attr);
-        
+
     /**
      * Returns the index of the attr.
-     * 
-     * @throws IllegalArgumentException if attr does not 
-     * exist in the relation.
+     *
+     * @throws IllegalArgumentException if attr does not
+     *                                  exist in the relation.
      */
     public int getAttrIndex(String attr);
 
     /**
      * Inserts a row in the relation.
-     * 
-     * @throws IllegalArgumentException if the cell types do not correspond 
-     * to the attibute types of the relation or if the row already exists.
+     *
+     * @throws IllegalArgumentException if the cell types do not correspond
+     *                                  to the attibute types of the relation or if
+     *                                  the row already exists.
      */
     public void insert(Cell... cells);
 
     /**
      * Inserts a row in the relation.
-     * 
-     * @throws IllegalArgumentException if the cell types do not correspond 
-     * to the attibute types of the relation or if the row already exists.
+     *
+     * @throws IllegalArgumentException if the cell types do not correspond
+     *                                  to the attibute types of the relation or if
+     *                                  the row already exists.
      */
     public void insert(List<Cell> cells);
 
     /**
-     * Print the relation properly formatted as a table 
+     * Print the relation properly formatted as a table
      * to the standard ouput.
      * The result should look similar to MySql table outputs.
      */

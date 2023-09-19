@@ -4,7 +4,7 @@ package uga.cs4370.mydb;
  * Represents a cell in a row of a relation.
  */
 public class Cell {
-    
+
     private Object data;
     private Type type;
 
@@ -70,7 +70,7 @@ public class Cell {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Cell that = (Cell)obj;
+        Cell that = (Cell) obj;
         return type == that.type && data.equals(that.data);
     }
 

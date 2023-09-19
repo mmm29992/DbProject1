@@ -10,10 +10,11 @@ public interface RelationBuilder {
     /**
      * Creates an empty relation with attribute names attrs and
      * attribute types types.
-     * 
+     *
      * @throws IllegalArgumentException if attrs and types have different counts
-     * or attrs have empty or non-alphanumeric attribute names.
+     *                                  or attrs have empty or non-alphanumeric
+     *                                  attribute names.
      */
     public Relation newRelation(String name, List<String> attrs, List<Type> types);
-    
+
 }
