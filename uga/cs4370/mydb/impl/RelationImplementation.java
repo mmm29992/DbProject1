@@ -58,6 +58,9 @@ public class RelationImplementation implements Relation {
   }
 
   public boolean hasAttr(String attr) {
-
+    for (int i = 0; i < attrs.size(); i++) {
+      if (attrs.get(i).compareTo(attr) == 0) return true;
+    }
+    return false;
   }
 }

@@ -38,7 +38,7 @@ public interface Relation {
      * Returns true only if attr exist in the relation.
      */
     public boolean hasAttr(String attr);
-
+        
     /**
      * Returns the index of the attr.
      * 
