@@ -75,6 +75,9 @@ public class RelationImplementation implements Relation {
 
   @Override
   public int getAttrIndex(String attr) {
-
+    for (int i = 0; i < attrs.size(); i++) {
+      if (attrs.get(i).equalsIgnoreCase(attr)) return i;
+    }
+    throw new IllegalArgumentException("attr does not exist in the relation.");
   }
 }
