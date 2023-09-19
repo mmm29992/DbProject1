@@ -74,15 +74,18 @@ public class RelationImplementation implements Relation {
   }
 
   /**
-   * Returns the index of {@code attr} in {@code attrs}.
+   * Returns the index of the attr.
    *
    * @param attr attribute to check
-   * @returns the index of {@code attr} in {@code attrs}
+   * @returns the index of the attr
+   * @throws IllegalArgumentException if attr does not
+   *                                  exist in the relation.
    */
   @Override
   public int getAttrIndex(String attr) {
     for (int i = 0; i < attrs.size(); i++) {
-      if (attrs.get(i).equalsIgnoreCase(attr)) return i;
+      if (attrs.get(i).equalsIgnoreCase(attr))
+        return i;
     }
     throw new IllegalArgumentException("attr does not exist in the relation.");
   }
