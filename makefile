@@ -1,6 +1,10 @@
 COMPILE = javac -cp bin -d bin uga/cs4370/mydb
 
-run:
+run: cl
+	javac -cp bin -d bin Main.java
+	java -cp bin Main
+
+cl:
 	$(COMPILE)/Type.java
 	$(COMPILE)/Cell.java
 	$(COMPILE)/Predicate.java
@@ -9,8 +13,10 @@ run:
 	$(COMPILE)/RA.java
 	$(COMPILE)/impl/RelationImplementation.java
 	$(COMPILE)/impl/RelationBuilderImplementation.java
-	javac -cp bin -d bin Main.java
-	java -cp bin Main
+
+test: cl
+	javac -cp bin -d bin Tester.java
+	java -ea -cp bin Tester
 
 clean:
 	rm -r bin

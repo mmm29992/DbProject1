@@ -18,6 +18,6 @@ public class Main {
     RelationBuilderImplementation rb = new RelationBuilderImplementation();
     Relation relation = rb.newRelation("Students", Arrays.asList("StudentID", "FName", "LName", "DoB", "Major"),
         Arrays.asList(Type.INTEGER, Type.STRING, Type.STRING, Type.STRING, Type.STRING));
-
+    
   }
 }

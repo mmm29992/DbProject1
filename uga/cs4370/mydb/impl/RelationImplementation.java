@@ -28,6 +28,7 @@ public class RelationImplementation implements Relation {
     this.name = name;
     this.attrs = new ArrayList<>(attrs);
     this.types = new ArrayList<>(types);
+    rows = new ArrayList<>();
   }
 
   /**
@@ -198,10 +199,10 @@ public class RelationImplementation implements Relation {
           return false;
       }
     }
-    return true;
+    return !rows.isEmpty();
   }
 
   public void print() {
-
+    
   }
 }
