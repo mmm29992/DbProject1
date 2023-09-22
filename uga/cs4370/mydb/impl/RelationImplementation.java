@@ -202,7 +202,81 @@ public class RelationImplementation implements Relation {
     return !rows.isEmpty();
   }
 
+  /**
+   * Prints out the relation.
+   */
   public void print() {
-    
+    printVerticalBorder();
+    printAttrs();
+    printVerticalBorder();
+    printRows();
+    printVerticalBorder();
+  }
+
+  /**
+   * Prints out the vertical border when printing
+   * out the relation.
+   */
+  private void printVerticalBorder() {
+    int[] maxTextLengths = getMaxTextLengths();
+    System.out.print("+");
+    for (int i = 0; i < maxTextLengths.length; i++) {
+      System.out.print("-".repeat(maxTextLengths[i] + 2));
+      System.out.print("+");
+    }
+    System.out.println();
+  }
+
+  /**
+   * Prints the row attributes when printing out
+   * the relation.
+   */
+  private void printAttrs() {
+    int[] maxTextLengths = getMaxTextLengths();
+    System.out.print("|");
+    for (int i = 0; i < attrs.size(); i++) {
+      String attr = attrs.get(i);
+      System.out.print(" ");
+      System.out.print(attr);
+      System.out.print(" ".repeat(maxTextLengths[i] - attr.length()));
+      System.out.print(" |");
+    }
+    System.out.println();
+  }
+
+  /**
+   * Prints out the rows in the relation.
+   */
+  private void printRows() {
+    int[] maxTextLengths = getMaxTextLengths();
+    for (List<Cell> row : rows) {
+      System.out.print("|");
+      for (int i = 0; i < row.size(); i++) {
+        String data = row.get(i).toString();
+        System.out.print(" ");
+        System.out.print(data);
+        System.out.print(" ".repeat(maxTextLengths[i] - data.length()));
+        System.out.print(" |");
+      }
+      System.out.println();
+    }
+  }
+
+  /**
+   * Returns the max text length of each column
+   * in the relation.
+   *
+   * @return max text length of each column in the relation
+   */
+  private int[] getMaxTextLengths() {
+    int[] maxTextLengths = new int[attrs.size()];
+    for (int i = 0; i < maxTextLengths.length; i++) {
+      int maxTextLength = attrs.get(i).length();
+      for (int j = 0; j < rows.size(); j++) {
+        maxTextLength = Math.max(maxTextLength, rows.get(j).get(i).toString().length());
+      }
+      maxTextLengths[i] = maxTextLength;
+    }
+    return maxTextLengths;
   }
 }
