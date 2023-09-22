@@ -209,6 +209,8 @@ public class RelationImplementation implements Relation {
     printVerticalBorder();
     printAttrs();
     printVerticalBorder();
+    if (rows.isEmpty())
+      return;
     printRows();
     printVerticalBorder();
   }

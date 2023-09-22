@@ -21,10 +21,7 @@ public class Main {
     Relation professors = getProfessorsRelation();
     Relation teaches = getTeachesRelation();
     students.print();
-    courses.print();
-    enrollment.print();
-    professors.print();
-    teaches.print();
+    RAImplementation ra = new RAImplementation();
   }
 
   /**

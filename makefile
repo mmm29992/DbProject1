@@ -13,6 +13,7 @@ cl:
 	$(COMPILE)/RA.java
 	$(COMPILE)/impl/RelationImplementation.java
 	$(COMPILE)/impl/RelationBuilderImplementation.java
+	$(COMPILE)/impl/RAImplementation.java
 
 test: cl
 	javac -cp bin -d bin Tester.java
