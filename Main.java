@@ -1,4 +1,7 @@
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import uga.cs4370.mydb.Relation;
 import uga.cs4370.mydb.Type;
 import uga.cs4370.mydb.Cell;
@@ -22,6 +25,12 @@ public class Main {
     Relation teaches = getTeachesRelation();
     students.print();
     RAImplementation ra = new RAImplementation();
+    ra.project(students, Arrays.asList("Major", "StudentID", "LName")).print();
+    Set s = new HashSet<>(
+        Arrays.asList(new HashSet<>(Arrays.asList(1, 4, 2, 9)), new HashSet<>(Arrays.asList(5, 9, 20, 1))));
+    Set s2 = new HashSet<>(
+        Arrays.asList(new HashSet<>(Arrays.asList(20, 1, 5, 9)), new HashSet<>(Arrays.asList(2, 9, 4, 1))));
+    System.out.println(s.equals(s2));
   }
 
   /**

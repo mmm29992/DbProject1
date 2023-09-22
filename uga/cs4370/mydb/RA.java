@@ -36,7 +36,7 @@ public interface RA {
      *
      * @throws IllegalArgumentException If rel1 and rel2 are not compatible.
      */
-    public Relation union(Relation rel1, Relation rel2);
+public Relation union(Relation rel1, Relation rel2);
 
     /**
      * Performs the set difference operaion on the relations rel1 and rel2.
