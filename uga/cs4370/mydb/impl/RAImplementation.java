@@ -246,11 +246,47 @@ public class RAImplementation implements RA {
    * @param rel1 first relation
    * @param rel2 second relation
    * @return The resulting relation after applying cartisian product.
-   * @throws IllegalArgumentException if rel1 and rel2 have common attibutes.
+   * @throws IllegalArgumentException if rel1 and rel2 have common attributes.
    */
   @Override
   public Relation cartesianProduct(Relation rel1, Relation rel2) {
-    throw new UnsupportedOperationException();
+    if (relationsHaveACommonAttr(rel1, rel2))
+      throw new IllegalArgumentException("rel1 and rel2 have common attributes.");
+    List<String> newAttrs = rel1.getAttrs();
+    newAttrs.addAll(rel2.getAttrs());
+    List<Type> newTypes = rel1.getTypes();
+    newTypes.addAll(rel2.getTypes());
+    Relation result = new RelationBuilderImplementation()
+        .newRelation(rel1.getName() + "CartesianProduct" + rel2.getName(), newAttrs, newTypes);
+
+    List<List<Cell>> rows1 = rel1.getRows();
+    List<List<Cell>> rows2 = rel2.getRows();
+    for (int i = 0; i < rel1.getSize(); i++) {
+      for (int j = 0; j < rel2.getSize(); j++) {
+        List<Cell> newRow = new ArrayList<>(rows1.get(i));
+        newRow.addAll(rows2.get(j));
+        result.insert(newRow);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns {@code true} if {@code rel1} and {@code rel2}
+   * have a common attribute.
+   *
+   * @param rel1 first relation
+   * @param rel2 second relation
+   * @return {@code true} if {@code rel1} and {@code rel2}
+   *         have a common attribute
+   */
+  private boolean relationsHaveACommonAttr(Relation rel1, Relation rel2) {
+    List<String> attrs1 = rel1.getAttrs();
+    List<String> attrs2 = rel2.getAttrs();
+    Set<String> set = new HashSet<>(attrs1);
+    set.addAll(attrs2);
+    return set.size() != attrs1.size() + attrs2.size();
   }
 
   /**

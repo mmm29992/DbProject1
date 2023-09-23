@@ -52,6 +52,8 @@ public class Tester {
     test30();
     test31();
     test32();
+    test33();
+    test34();
   }
 
   /**
@@ -720,6 +722,63 @@ public class Tester {
     } else {
       System.err.println("Test 32: FAILED");
       assert false : "Rename method does not work.";
+    }
+  }
+
+  /**
+   * Checks {@code cartesianProduct} method with common attributes.
+   */
+  private static void test33() {
+    System.out.println("Test 33: Checks cartesianProduct method with common attributes.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B", "C"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("C", "D", "E"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    try {
+      new RAImplementation().cartesianProduct(rel1, rel2);
+      System.err.println("Test 33: FAILED");
+      assert false : "Cannot cartesian product with common attributes.";
+    } catch (IllegalArgumentException e) {
+      System.out.println("Test 33: PASS");
+      System.out.println();
+    }
+  }
+
+  /**
+   * Checks {@code cartesianProduct} implementation.
+   */
+  private static void test34() {
+    System.out.println("Test 34: Checks cartesianProduct implementation.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B", "C"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("D", "E", "F"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    rel1.insert(new Cell(2), new Cell(3.3), new Cell("Please"));
+    rel1.insert(new Cell(43), new Cell(34.23), new Cell("Credera"));
+    rel2.insert(new Cell(94), new Cell(23.35), new Cell("Technology"));
+    rel2.insert(new Cell(48), new Cell(4.2), new Cell("Consultant"));
+    rel2.insert(new Cell(1), new Cell(0.2), new Cell("Keyboard"));
+    Relation result = new RAImplementation().cartesianProduct(rel1, rel2);
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution",
+        Arrays.asList("D", "B", "C", "A", "F", "E"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING, Type.INTEGER, Type.STRING, Type.DOUBLE));
+    solution.insert(new Cell(94), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Technology"),
+        new Cell(23.35));
+    solution.insert(new Cell(48), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Consultant"),
+        new Cell(4.2));
+    solution.insert(new Cell(1), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Keyboard"), new Cell(0.2));
+    solution.insert(new Cell(94), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Technology"),
+        new Cell(23.35));
+    solution.insert(new Cell(48), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Consultant"),
+        new Cell(4.2));
+    solution.insert(new Cell(1), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Keyboard"),
+        new Cell(0.2));
+    if (equals(solution, result)) {
+      System.out.println("Test 34: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 34: FAILED");
+      assert false : "Cartesian Product method does not work.";
     }
   }
 
