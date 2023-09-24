@@ -54,6 +54,11 @@ public class Tester {
     test32();
     test33();
     test34();
+    test35();
+    test36();
+    test37();
+    test38();
+    test39();
   }
 
   /**
@@ -779,6 +784,166 @@ public class Tester {
     } else {
       System.err.println("Test 34: FAILED");
       assert false : "Cartesian Product method does not work.";
+    }
+  }
+
+  /**
+   * Checks natural {@code join} method with no common attributes.
+   */
+  private static void test35() {
+    System.out.println("Test 35: Checks natural join method with no common attributes.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B", "C"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("D", "E", "F"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING));
+    rel1.insert(new Cell(2), new Cell(3.3), new Cell("Please"));
+    rel1.insert(new Cell(43), new Cell(34.23), new Cell("Credera"));
+    rel2.insert(new Cell(94), new Cell(23.35), new Cell("Technology"));
+    rel2.insert(new Cell(48), new Cell(4.2), new Cell("Consultant"));
+    rel2.insert(new Cell(1), new Cell(0.2), new Cell("Keyboard"));
+    Relation result = new RAImplementation().join(rel1, rel2);
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution",
+        Arrays.asList("D", "B", "C", "A", "F", "E"),
+        Arrays.asList(Type.INTEGER, Type.DOUBLE, Type.STRING, Type.INTEGER, Type.STRING, Type.DOUBLE));
+    solution.insert(new Cell(94), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Technology"),
+        new Cell(23.35));
+    solution.insert(new Cell(48), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Consultant"),
+        new Cell(4.2));
+    solution.insert(new Cell(1), new Cell(3.3), new Cell("Please"), new Cell(2), new Cell("Keyboard"), new Cell(0.2));
+    solution.insert(new Cell(94), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Technology"),
+        new Cell(23.35));
+    solution.insert(new Cell(48), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Consultant"),
+        new Cell(4.2));
+    solution.insert(new Cell(1), new Cell(34.23), new Cell("Credera"), new Cell(43), new Cell("Keyboard"),
+        new Cell(0.2));
+    if (equals(solution, result)) {
+      System.out.println("Test 35: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 35: FAILED");
+      assert false : "Cartesian Product method does not work.";
+    }
+  }
+
+  /**
+   * Checks natural {@code join} method with one common attribute.
+   */
+  private static void test36() {
+    System.out.println("Test 36: Checks natural join method with one common attribute.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B"),
+        Arrays.asList(Type.INTEGER, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("C", "B"),
+        Arrays.asList(Type.DOUBLE, Type.STRING));
+    rel1.insert(new Cell(82), new Cell("pineapple"));
+    rel1.insert(new Cell(5), new Cell("darren"));
+    rel1.insert(new Cell(17), new Cell("midang"));
+    rel1.insert(new Cell(20), new Cell("darren"));
+    rel2.insert(new Cell(13.3), new Cell("darren"));
+    rel2.insert(new Cell(20.2), new Cell("pineapple"));
+    rel2.insert(new Cell(18.9), new Cell("synchronized"));
+    Relation result = new RAImplementation().join(rel1, rel2);
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution", Arrays.asList("C", "B", "A"),
+        Arrays.asList(Type.DOUBLE, Type.STRING, Type.INTEGER));
+    solution.insert(new Cell(20.2), new Cell("pineapple"), new Cell(82));
+    solution.insert(new Cell(13.3), new Cell("darren"), new Cell(5));
+    solution.insert(new Cell(13.3), new Cell("darren"), new Cell(20));
+    if (equals(result, solution)) {
+      System.out.println("Test 36: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 36: FAILED");
+      assert false : "Natural join does not work with one common attribute.";
+    }
+  }
+
+  /**
+   * Checks natural {@code join} method with two common attributes.
+   */
+  private static void test37() {
+    System.out.println("Test 37: Checks natural join method with two common attributes.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B", "C"),
+        Arrays.asList(Type.INTEGER, Type.STRING, Type.DOUBLE));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("C", "B", "D"),
+        Arrays.asList(Type.DOUBLE, Type.STRING, Type.INTEGER));
+    rel1.insert(new Cell(4), new Cell("okay"), new Cell(20.3));
+    rel2.insert(new Cell(20.3), new Cell("okay"), new Cell(4));
+    rel2.insert(new Cell(20.3), new Cell("okay"), new Cell(10));
+    rel2.insert(new Cell(20.33), new Cell("okay"), new Cell(10));
+    rel2.insert(new Cell(20.3), new Cell("okayy"), new Cell(10));
+    rel2.insert(new Cell(20.33), new Cell("okayy"), new Cell(10));
+    Relation result = new RAImplementation().join(rel1, rel2);
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution", Arrays.asList("B", "D", "C", "A"),
+        Arrays.asList(Type.STRING, Type.INTEGER, Type.DOUBLE, Type.INTEGER));
+    solution.insert(new Cell("okay"), new Cell(4), new Cell(20.3), new Cell(4));
+    solution.insert(new Cell("okay"), new Cell(10), new Cell(20.3), new Cell(4));
+    if (equals(result, solution)) {
+      System.out.println("Test 37: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 37: FAILED");
+      assert false : "Natural join does not work with two common attributes.";
+    }
+  }
+
+  /**
+   * Checks theta {@code join} method implementation.
+   */
+  private static void test38() {
+    System.out.println("Test 38: Checks theta join method implementation.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B"),
+        Arrays.asList(Type.INTEGER, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("C", "D"),
+        Arrays.asList(Type.INTEGER, Type.STRING));
+    rel1.insert(new Cell(20), new Cell("wacky"));
+    rel1.insert(new Cell(25), new Cell("diamond"));
+    rel1.insert(new Cell(58), new Cell("circle"));
+    rel1.insert(new Cell(1), new Cell("aba"));
+    rel2.insert(new Cell(4), new Cell("please"));
+    rel2.insert(new Cell(19), new Cell("cheese"));
+    rel2.insert(new Cell(20), new Cell("abacus"));
+    rel2.insert(new Cell(59), new Cell("jack"));
+    Relation result = new RAImplementation().join(rel1, rel2,
+        row -> row.get(0).getAsInt() > 15 && row.get(1).getAsString().contains("a"));
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution", Arrays.asList("C", "A", "B", "D"),
+        Arrays.asList(Type.INTEGER, Type.INTEGER, Type.STRING, Type.STRING));
+    solution.insert(new Cell(20), new Cell(20), new Cell("wacky"), new Cell("abacus"));
+    solution.insert(new Cell(59), new Cell(20), new Cell("wacky"), new Cell("jack"));
+    solution.insert(new Cell(20), new Cell(25), new Cell("diamond"), new Cell("abacus"));
+    solution.insert(new Cell(59), new Cell(25), new Cell("diamond"), new Cell("jack"));
+    if (equals(solution, result)) {
+      System.out.println("Test 38: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 38: FAILED");
+      assert false : "Theta join method does not work.";
+    }
+  }
+
+  /**
+   * Checks theta {@code join} method implementation.
+   */
+  private static void test39() {
+    System.out.println("Test 39: Checks theta join method implementation.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("A", "B"),
+        Arrays.asList(Type.INTEGER, Type.STRING));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Relation1", Arrays.asList("C", "D"),
+        Arrays.asList(Type.INTEGER, Type.STRING));
+    rel1.insert(new Cell(20), new Cell("wacky"));
+    rel1.insert(new Cell(25), new Cell("diamond"));
+    rel1.insert(new Cell(58), new Cell("circle"));
+    rel1.insert(new Cell(1), new Cell("aba"));
+    rel2.insert(new Cell(4), new Cell("please"));
+    rel2.insert(new Cell(19), new Cell("cheese"));
+    Relation result = new RAImplementation().join(rel1, rel2,
+        row -> row.get(0).getAsInt() > 15 && row.get(1).getAsString().contains("a"));
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution", Arrays.asList("C", "A", "B", "D"),
+        Arrays.asList(Type.INTEGER, Type.INTEGER, Type.STRING, Type.STRING));
+    if (equals(solution, result)) {
+      System.out.println("Test 39: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 39: FAILED");
+      assert false : "Theta join method does not work.";
     }
   }
 

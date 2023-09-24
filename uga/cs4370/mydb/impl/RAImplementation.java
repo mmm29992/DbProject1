@@ -1,7 +1,9 @@
 package uga.cs4370.mydb.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -252,24 +254,7 @@ public class RAImplementation implements RA {
   public Relation cartesianProduct(Relation rel1, Relation rel2) {
     if (relationsHaveACommonAttr(rel1, rel2))
       throw new IllegalArgumentException("rel1 and rel2 have common attributes.");
-    List<String> newAttrs = rel1.getAttrs();
-    newAttrs.addAll(rel2.getAttrs());
-    List<Type> newTypes = rel1.getTypes();
-    newTypes.addAll(rel2.getTypes());
-    Relation result = new RelationBuilderImplementation()
-        .newRelation(rel1.getName() + "CartesianProduct" + rel2.getName(), newAttrs, newTypes);
-
-    List<List<Cell>> rows1 = rel1.getRows();
-    List<List<Cell>> rows2 = rel2.getRows();
-    for (int i = 0; i < rel1.getSize(); i++) {
-      for (int j = 0; j < rel2.getSize(); j++) {
-        List<Cell> newRow = new ArrayList<>(rows1.get(i));
-        newRow.addAll(rows2.get(j));
-        result.insert(newRow);
-      }
-    }
-
-    return result;
+    return join(rel1, rel2, row -> true, rel1.getName() + "CartesianProduct" + rel2.getName());
   }
 
   /**
@@ -282,11 +267,25 @@ public class RAImplementation implements RA {
    *         have a common attribute
    */
   private boolean relationsHaveACommonAttr(Relation rel1, Relation rel2) {
-    List<String> attrs1 = rel1.getAttrs();
-    List<String> attrs2 = rel2.getAttrs();
-    Set<String> set = new HashSet<>(attrs1);
-    set.addAll(attrs2);
-    return set.size() != attrs1.size() + attrs2.size();
+    return !getCommonAttrs(rel1, rel2).isEmpty();
+  }
+
+  /**
+   * Returns the common attributes from {@code rel1} and
+   * {@code rel2}.
+   *
+   * @param rel1 first relation
+   * @param rel2 second relation
+   * @return the common attributes from {@code rel1} and {@code rel2}
+   */
+  private List<String> getCommonAttrs(Relation rel1, Relation rel2) {
+    Set<String> set = new HashSet<>(rel1.getAttrs());
+    List<String> commonAttrs = new ArrayList<>();
+    for (String attr : rel2.getAttrs()) {
+      if (set.contains(attr))
+        commonAttrs.add(attr);
+    }
+    return commonAttrs;
   }
 
   /**
@@ -298,11 +297,114 @@ public class RAImplementation implements RA {
    */
   @Override
   public Relation join(Relation rel1, Relation rel2) {
-    throw new UnsupportedOperationException();
+    if (!relationsHaveACommonAttr(rel1, rel2))
+      return cartesianProduct(rel1, rel2);
+    List<String> commonAttrs = getCommonAttrs(rel1, rel2);
+    Map<String, Integer> attrIndexMap1 = getAttrIndexMap(rel1, commonAttrs);
+    Map<String, Integer> attrIndexMap2 = getAttrIndexMap(rel2, commonAttrs);
+    Relation result = new RelationBuilderImplementation().newRelation(rel1.getName() + "NaturalJoin" + rel2.getName(),
+        getCombinedAttrs(rel1, rel2), getCombinedTypes(rel1, rel2));
+
+    List<List<Cell>> rows1 = rel1.getRows();
+    List<List<Cell>> rows2 = rel2.getRows();
+    for (List<Cell> row1 : rows1) {
+      for (List<Cell> row2 : rows2) {
+        boolean isCombinedRow = true;
+        for (String attr : commonAttrs) {
+          int index1 = attrIndexMap1.get(attr);
+          int index2 = attrIndexMap2.get(attr);
+          if (!row1.get(index1).equals(row2.get(index2))) {
+            isCombinedRow = false;
+            break;
+          }
+        }
+        if (isCombinedRow)
+          result.insert(getCombinedRow(row1, row2, attrIndexMap2));
+      }
+    }
+    return result;
   }
 
   /**
-   * Performs theta join on relations rel1 and rel2 with predicate p.
+   * Returns the attributes combined from {@code rel1} and {@code rel2}
+   * without duplicates.
+   *
+   * @param rel1 first relation
+   * @param rel2 second relation
+   * @return the attributes combined from {@code rel1} and {@code rel2}
+   *         without duplicates
+   */
+  private List<String> getCombinedAttrs(Relation rel1, Relation rel2) {
+    List<String> combinedAttrs = rel1.getAttrs();
+    for (String attr : rel2.getAttrs()) {
+      if (!combinedAttrs.contains(attr))
+        combinedAttrs.add(attr);
+    }
+    return combinedAttrs;
+  }
+
+  /**
+   * Returns the types of the attributes combined from {@code rel1}
+   * and {@code rel2} without duplicates.
+   *
+   * @param rel1 first relation
+   * @param rel2 second relation
+   * @return the types of the attributes combined from {@code rel1}
+   *         and {@code rel2} without duplicates
+   */
+  private List<Type> getCombinedTypes(Relation rel1, Relation rel2) {
+    List<Type> combinedTypes = rel1.getTypes();
+    List<Type> types2 = rel2.getTypes();
+    List<String> attrs1 = rel1.getAttrs();
+    List<String> attrs2 = rel2.getAttrs();
+    for (int i = 0; i < attrs1.size(); i++) {
+      if (!attrs1.contains(attrs2.get(i)))
+        combinedTypes.add(types2.get(i));
+    }
+    return combinedTypes;
+  }
+
+  /**
+   * Returns a map that maps an attribute from {@code attrs}
+   * to its given index in {@code rel}.
+   *
+   * @param rel   relation to get the index of the attributes
+   * @param attrs attributes to get the index of
+   * @return a ap that maps an attribute from {@code attrs}
+   *         to its given index in {@code rel}
+   */
+  private Map<String, Integer> getAttrIndexMap(Relation rel, List<String> attrs) {
+    Map<String, Integer> map = new HashMap<>();
+    for (String attr : attrs) {
+      map.put(attr, rel.getAttrIndex(attr));
+    }
+    return map;
+  }
+
+  /**
+   * Returns the row combined from {@code row1} and {@code row2}
+   * without duplicate attributes.
+   *
+   * @param row1          row from the first relation
+   * @param row2          row from the second relation
+   * @param attrIndexMap2 second relation map that maps the attributes
+   *                      to its index
+   * @return the row combined from {@code row1} and {@code row2}
+   *         without the duplicate attribute
+   */
+  private List<Cell> getCombinedRow(List<Cell> row1, List<Cell> row2, Map<String, Integer> attrIndexMap2) {
+    List<Cell> combinedRow = new ArrayList<>(row1);
+    Set<Integer> commonAttrIndices2 = new HashSet<>(attrIndexMap2.values());
+    for (int i = 0; i < row2.size(); i++) {
+      if (!commonAttrIndices2.contains(i))
+        combinedRow.add(row2.get(i));
+    }
+    return combinedRow;
+  }
+
+  /**
+   * Performs theta join on relations {@code rel1} and {@code rel2}
+   * with predicate {@code p}.
    *
    * @param rel1 first relation
    * @param rel2 second relation
@@ -310,6 +412,34 @@ public class RAImplementation implements RA {
    * @return The resulting relation after applying theta join.
    */
   public Relation join(Relation rel1, Relation rel2, Predicate p) {
-    throw new UnsupportedOperationException();
+    return join(rel1, rel2, p, rel1.getName() + "Join" + rel2.getName());
+  }
+
+  /**
+   * Performs theta join on relations {@code rel1} and {@code rel2}
+   * with predicate {@code p}.
+   *
+   * @param rel1         first relation
+   * @param rel2         second relation
+   * @param p            predicate that joins {@code rel1} and {@code rel2}
+   * @param relationName name of the new relation
+   * @return The resulting relation after applying theta join.
+   */
+  private Relation join(Relation rel1, Relation rel2, Predicate p, String relationName) {
+    Relation result = new RelationBuilderImplementation().newRelation(relationName, getCombinedAttrs(rel1, rel2),
+        getCombinedTypes(rel1, rel2));
+
+    List<List<Cell>> rows1 = rel1.getRows();
+    List<List<Cell>> rows2 = rel2.getRows();
+    for (List<Cell> row1 : rows1) {
+      for (List<Cell> row2 : rows2) {
+        if (p.check(row1) && p.check(row2)) {
+          List<Cell> newRow = new ArrayList<>(row1);
+          newRow.addAll(row2);
+          result.insert(newRow);
+        }
+      }
+    }
+    return result;
   }
 }
