@@ -6,17 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 
 import uga.cs4370.mydb.Cell;
 import uga.cs4370.mydb.Predicate;
 import uga.cs4370.mydb.RA;
 import uga.cs4370.mydb.Type;
 import uga.cs4370.mydb.Relation;
+import uga.cs4370.mydb.RelationBuilder;
 
 /**
  * An implementation of the {@code RA} interface.
  */
 public class RAImplementation implements RA {
+
+  private static final RelationBuilder BUILDER = new RelationBuilderImplementation();
 
   /**
    * Performs the select operation on the relation rel
@@ -28,7 +32,7 @@ public class RAImplementation implements RA {
    */
   @Override
   public Relation select(Relation rel, Predicate p) {
-    Relation result = new RelationBuilderImplementation().newRelation(rel.getName(), rel.getAttrs(), rel.getTypes());
+    Relation result = BUILDER.newRelation(rel.getName(), rel.getAttrs(), rel.getTypes());
     for (List<Cell> row : rel.getRows()) {
       if (p.check(row))
         result.insert(new ArrayList<>(row));
@@ -50,7 +54,7 @@ public class RAImplementation implements RA {
   public Relation project(Relation rel, List<String> attrs) {
     if (!attrsPresentInRel(rel, attrs))
       throw new IllegalArgumentException("Attributes in attrs are not present in rel.");
-    Relation result = new RelationBuilderImplementation().newRelation(rel.getName(), attrs,
+    Relation result = BUILDER.newRelation(rel.getName(), attrs,
         getTypesFromAttrs(rel, attrs));
     for (List<Cell> row : getProjectRows(rel, attrs))
       result.insert(row);
@@ -101,6 +105,7 @@ public class RAImplementation implements RA {
    *         operation is called
    */
   private List<List<Cell>> getProjectRows(Relation rel, List<String> attrs) {
+    Set<List<Cell>> set = new HashSet<>();
     List<List<Cell>> newRows = new ArrayList<>();
     for (List<Cell> row : rel.getRows()) {
       List<Cell> newRow = new ArrayList<>();
@@ -108,6 +113,9 @@ public class RAImplementation implements RA {
         int index = rel.getAttrIndex(attrs.get(i));
         newRow.add(row.get(index));
       }
+      if (set.contains(newRow))
+        continue;
+      set.add(newRow);
       newRows.add(newRow);
     }
     return newRows;
@@ -128,7 +136,7 @@ public class RAImplementation implements RA {
       throw new IllegalArgumentException("rel1 and rel2 do not have the same number of attributes.");
     if (!sameAttrsAndTypes(rel1, rel2))
       throw new IllegalArgumentException("rel1 and rel2 have do not have the same attrs or types.");
-    Relation result = new RelationBuilderImplementation().newRelation(rel1.getName() + "Union" + rel2.getName(),
+    Relation result = BUILDER.newRelation(rel1.getName() + "Union" + rel2.getName(),
         rel1.getAttrs(), rel1.getTypes());
     for (List<Cell> row : rel1.getRows()) {
       result.insert(row);
@@ -141,10 +149,10 @@ public class RAImplementation implements RA {
         int index = rel1.getAttrIndex(attrs2.get(i));
         organizedRow[index] = row.get(i);
       }
-      result.insert(organizedRow);
+      if (!rowExists(result, row))
+        result.insert(organizedRow);
     }
     return result;
-
   }
 
   /**
@@ -161,7 +169,7 @@ public class RAImplementation implements RA {
       throw new IllegalArgumentException("rel1 and rel2 do not have the same number of attributes.");
     if (!sameAttrsAndTypes(rel1, rel2))
       throw new IllegalArgumentException("rel1 and rel2 have do not have the same attrs or types.");
-    Relation result = new RelationBuilderImplementation().newRelation(rel1.getName() + "Diff" + rel2.getName(),
+    Relation result = BUILDER.newRelation(rel1.getName() + "Diff" + rel2.getName(),
         rel1.getAttrs(), rel1.getTypes());
     for (List<Cell> row : rel1.getRows()) {
       if (!rowExists(rel2, row))
@@ -235,7 +243,7 @@ public class RAImplementation implements RA {
       int index = newAttrs.indexOf(origAttr.get(i));
       newAttrs.set(index, renamedAttr.get(i));
     }
-    Relation result = new RelationBuilderImplementation().newRelation(rel.getName(), newAttrs, rel.getTypes());
+    Relation result = BUILDER.newRelation(rel.getName(), newAttrs, rel.getTypes());
     for (List<Cell> row : rel.getRows()) {
       result.insert(row);
     }
@@ -302,7 +310,7 @@ public class RAImplementation implements RA {
     List<String> commonAttrs = getCommonAttrs(rel1, rel2);
     Map<String, Integer> attrIndexMap1 = getAttrIndexMap(rel1, commonAttrs);
     Map<String, Integer> attrIndexMap2 = getAttrIndexMap(rel2, commonAttrs);
-    Relation result = new RelationBuilderImplementation().newRelation(rel1.getName() + "NaturalJoin" + rel2.getName(),
+    Relation result = BUILDER.newRelation(rel1.getName() + "NaturalJoin" + rel2.getName(),
         getCombinedAttrs(rel1, rel2), getCombinedTypes(rel1, rel2));
 
     List<List<Cell>> rows1 = rel1.getRows();
@@ -357,7 +365,7 @@ public class RAImplementation implements RA {
     List<Type> types2 = rel2.getTypes();
     List<String> attrs1 = rel1.getAttrs();
     List<String> attrs2 = rel2.getAttrs();
-    for (int i = 0; i < attrs1.size(); i++) {
+    for (int i = 0; i < attrs2.size(); i++) {
       if (!attrs1.contains(attrs2.get(i)))
         combinedTypes.add(types2.get(i));
     }
@@ -426,7 +434,7 @@ public class RAImplementation implements RA {
    * @return The resulting relation after applying theta join.
    */
   private Relation join(Relation rel1, Relation rel2, Predicate p, String relationName) {
-    Relation result = new RelationBuilderImplementation().newRelation(relationName, getCombinedAttrs(rel1, rel2),
+    Relation result = BUILDER.newRelation(relationName, getCombinedAttrs(rel1, rel2),
         getCombinedTypes(rel1, rel2));
 
     List<List<Cell>> rows1 = rel1.getRows();
@@ -442,4 +450,5 @@ public class RAImplementation implements RA {
     }
     return result;
   }
+
 }

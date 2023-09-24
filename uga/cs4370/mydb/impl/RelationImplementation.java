@@ -194,12 +194,10 @@ public class RelationImplementation implements Relation {
    */
   private boolean rowExists(List<Cell> cells) {
     for (List<Cell> row : rows) {
-      for (int i = 0; i < row.size(); i++) {
-        if (!row.get(i).equals(cells.get(i)))
-          return false;
-      }
+      if (row.equals(cells))
+        return true;
     }
-    return !rows.isEmpty();
+    return false;
   }
 
   /**

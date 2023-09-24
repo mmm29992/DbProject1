@@ -59,6 +59,7 @@ public class Tester {
     test37();
     test38();
     test39();
+    test40();
   }
 
   /**
@@ -944,6 +945,37 @@ public class Tester {
     } else {
       System.err.println("Test 39: FAILED");
       assert false : "Theta join method does not work.";
+    }
+  }
+
+  /**
+   * Checks {@code union} method implementation.
+   */
+  private static void test40() {
+    System.out.println("Test 40: Checks union method implementation.");
+    Relation rel1 = new RelationBuilderImplementation().newRelation("Rel1", Arrays.asList("A"),
+        Arrays.asList(Type.INTEGER));
+    Relation rel2 = new RelationBuilderImplementation().newRelation("Rel2", Arrays.asList("A"),
+        Arrays.asList(Type.INTEGER));
+    rel1.insert(new Cell(3));
+    rel1.insert(new Cell(7));
+    rel1.insert(new Cell(10));
+    rel2.insert(new Cell(18));
+    rel2.insert(new Cell(7));
+    rel2.insert(new Cell(3));
+    Relation result = new RAImplementation().union(rel1, rel2);
+    Relation solution = new RelationBuilderImplementation().newRelation("Solution", Arrays.asList("A"),
+        Arrays.asList(Type.INTEGER));
+    solution.insert(new Cell(3));
+    solution.insert(new Cell(7));
+    solution.insert(new Cell(10));
+    solution.insert(new Cell(18));
+    if (equals(solution, result)) {
+      System.out.println("Test 40: PASS");
+      System.out.println();
+    } else {
+      System.err.println("Test 40: FAILED");
+      assert false : "Union did not work with relations that have same rows";
     }
   }
 
