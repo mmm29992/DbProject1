@@ -1,12 +1,12 @@
 package uga.cs4370.mydb.impl;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Arrays;
 
 import uga.cs4370.mydb.Cell;
 import uga.cs4370.mydb.Predicate;
@@ -105,7 +105,6 @@ public class RAImplementation implements RA {
    *         operation is called
    */
   private List<List<Cell>> getProjectRows(Relation rel, List<String> attrs) {
-    Set<List<Cell>> set = new HashSet<>();
     List<List<Cell>> newRows = new ArrayList<>();
     for (List<Cell> row : rel.getRows()) {
       List<Cell> newRow = new ArrayList<>();
@@ -113,9 +112,8 @@ public class RAImplementation implements RA {
         int index = rel.getAttrIndex(attrs.get(i));
         newRow.add(row.get(index));
       }
-      if (set.contains(newRow))
+      if (newRows.contains(newRow))
         continue;
-      set.add(newRow);
       newRows.add(newRow);
     }
     return newRows;
@@ -142,17 +140,34 @@ public class RAImplementation implements RA {
       result.insert(row);
     }
 
+    for (List<Cell> row : getOrganizedRows(rel1, rel2)) {
+      if (!rowExists(result, row))
+        result.insert(row);
+    }
+    return result;
+  }
+
+  /**
+   * Returns the rows of {@code rel2} to be matched
+   * with the rows of {@code rel1}.
+   *
+   * @param rel1 relation to compare to
+   * @param rel2 relation to update
+   * @return rows of {@code rel2} to be matched with
+   *         the rows of {@code rel1}
+   */
+  private List<List<Cell>> getOrganizedRows(Relation rel1, Relation rel2) {
+    List<List<Cell>> organizedRows = new ArrayList<>();
     List<String> attrs2 = rel2.getAttrs();
     for (List<Cell> row : rel2.getRows()) {
-      Cell[] organizedRow = new Cell[row.size()];
+      Cell[] organizedRow = new Cell[attrs2.size()];
       for (int i = 0; i < row.size(); i++) {
         int index = rel1.getAttrIndex(attrs2.get(i));
         organizedRow[index] = row.get(i);
       }
-      if (!rowExists(result, row))
-        result.insert(organizedRow);
+      organizedRows.add(Arrays.asList(organizedRow));
     }
-    return result;
+    return organizedRows;
   }
 
   /**
@@ -171,8 +186,9 @@ public class RAImplementation implements RA {
       throw new IllegalArgumentException("rel1 and rel2 have do not have the same attrs or types.");
     Relation result = BUILDER.newRelation(rel1.getName() + "Diff" + rel2.getName(),
         rel1.getAttrs(), rel1.getTypes());
+    List<List<Cell>> organizedRows = getOrganizedRows(rel1, rel2);
     for (List<Cell> row : rel1.getRows()) {
-      if (!rowExists(rel2, row))
+      if (!organizedRows.contains(row))
         result.insert(row);
     }
     return result;
@@ -211,9 +227,8 @@ public class RAImplementation implements RA {
    * @param row row to check for
    */
   private boolean rowExists(Relation rel, List<Cell> row) {
-    Set<Cell> rowSet = new HashSet<>(row);
     for (List<Cell> currentRow : rel.getRows()) {
-      if (new HashSet<>(currentRow).equals(rowSet))
+      if (currentRow.equals(row))
         return true;
     }
     return false;
